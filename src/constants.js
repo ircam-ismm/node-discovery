@@ -1,0 +1,2 @@
+export const BROADCAST_ADDRESS = '255.255.255.255';
+export const BROADCAST_PORT = 8090;

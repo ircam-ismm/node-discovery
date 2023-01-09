@@ -1,8 +1,8 @@
-.babelrc
-jsdoc.conf
+.editorconfig
+.eslintrc
 
-bin
-docs
-src
 tests
-examples
+
+# junk files
+.DS_Store
+Thumbs.db

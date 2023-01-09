@@ -1,8 +1,7 @@
-import dgram from 'dgram';
-import { EventEmitter } from 'events';
-import { BROADCAST_PORT } from './config';
+import dgram from 'node:dgram';
+import { EventEmitter } from 'node:events';
 
-const BROADCAST_ADDRESS = '255.255.255.255';
+import { BROADCAST_PORT, BROADCAST_ADDRESS } from './constants.js';
 
 /**
  * Create a client that tries to connect to a DiscoveryServer.
@@ -83,12 +82,18 @@ class DiscoveryClient extends EventEmitter {
    */
   stop() {
     this.udp.close();
+
+    clearTimeout(this.retryTimeoutId);
+    clearTimeout(this.disconnectTimeoutId);
+    clearTimeout(this.discoverTimeoutId);
+    clearTimeout(this.keepaliveTimeoutId);
   }
 
   /**
    * Send a message to the server.
    *
    * @param {String} msg - Message to send.
+   * @private
    */
   send(msg) {
     if (this.udp) {
@@ -98,12 +103,13 @@ class DiscoveryClient extends EventEmitter {
       this.udp.setBroadcast(false);
       this.udp.send(buf, 0, buf.length, port, address);
 
-      if(this.verbose) {
+      if (this.verbose) {
         console.log('send: ', msg);
       }
     }
   }
 
+  /** @private */
   broadcast(msg) {
     if (this.udp) {
       const buf = Buffer.from(msg);
@@ -113,7 +119,7 @@ class DiscoveryClient extends EventEmitter {
       this.udp.setBroadcast(true);
       this.udp.send(buf, 0, buf.length, port, address);
 
-      if(this.verbose) {
+      if (this.verbose) {
         console.log('broadcast: ', msg);
       }
     }
@@ -125,11 +131,11 @@ class DiscoveryClient extends EventEmitter {
     this.udp.on('message', (buffer, rinfo) => {
       const msg = buffer.toString().split(' ');
 
-      if(this.verbose) {
+      if (this.verbose) {
         console.log('receive: ', msg);
       }
 
-      switch(msg[0]) {
+      switch (msg[0]) {
         case 'DISCOVER_ACK': {
           this._receiveDiscoverAck(msg, rinfo);
           break;
@@ -158,13 +164,15 @@ class DiscoveryClient extends EventEmitter {
     this.udp.on('listening', this._sendDiscoverReq);
 
     this.udp.bind(this.port, () => {
-      if (this.verbose)
+      if (this.verbose) {
         console.log('binded to port:', this.port);
+      }
     });
   }
 
   _sendDiscoverReq() {
     clearTimeout(this.discoverTimeoutId);
+
     this.messageId += 1;
     const msg = 'DISCOVER_REQ ' + this.messageId;
     this.broadcast(msg);
@@ -175,19 +183,21 @@ class DiscoveryClient extends EventEmitter {
 
   _receiveDiscoverAck(msg, rinfo) {
     const messageId = parseInt(msg[1]);
-    if(this.messageId !== messageId) {
-      if(this.verbose) {
+
+    if (this.messageId !== messageId) {
+      if (this.verbose) {
         console.log('ignore discover ack ' + msg[1]);
       }
     } else {
       clearTimeout(this.discoverTimeoutId);
 
       this.server = rinfo;
-      if(this.verbose) {
+
+      if (this.verbose) {
         console.log('> discover: ', this.server);
       }
 
-      if(this.state !== 'connected') {
+      if (this.state !== 'connected') {
         this._sendConnectReq();
       }
     }
@@ -195,6 +205,7 @@ class DiscoveryClient extends EventEmitter {
 
   _sendConnectReq() {
     clearTimeout(this.retryTimeoutId);
+
     this.messageId += 1;
     const msg = 'CONNECT_REQ ' + this.messageId + ' ' + JSON.stringify(this.payload);
     this.send(msg);
@@ -204,8 +215,9 @@ class DiscoveryClient extends EventEmitter {
 
   _receiveConnectAck(msg, rinfo) {
     const messageId = parseInt(msg[1]);
-    if(this.messageId !== messageId) {
-      if(this.verbose) {
+
+    if (this.messageId !== messageId) {
+      if (this.verbose) {
         console.log('ignore connect ack ' + msg[1]);
       }
     } else {
@@ -226,12 +238,13 @@ class DiscoveryClient extends EventEmitter {
     this.send(msg);
 
     this.retryTimeoutId = setTimeout(this._sendKeepaliveReq, this.retryTimeout);
-    if(!this.disconnectTimeoutId) {
+
+    if (!this.disconnectTimeoutId) {
       this.disconnectTimeoutId = setTimeout(this._resetConnection, this.disconnectTimeout);
     }
   }
 
-  _receiveKeepaliveAck(msg, rinfo) {
+  _receiveKeepaliveAck(msg, _rinfo) {
     const messageId = parseInt(msg[1]);
 
     if (this.messageId !== messageId) {
@@ -242,21 +255,23 @@ class DiscoveryClient extends EventEmitter {
       clearTimeout(this.retryTimeoutId);
       clearTimeout(this.keepaliveTimeoutId);
       clearTimeout(this.disconnectTimeoutId);
-      this.disconnectTimeoutId = null;
 
+      this.disconnectTimeoutId = null;
       this.keepaliveTimeoutId = setTimeout(this._sendKeepaliveReq, this.keepaliveInterval);
     }
   }
 
-  _receiveError(msg, rinfo) {
+  _receiveError(msg, _rinfo) {
     const messageId = parseInt(msg[1]);
+
     if (this.messageId !== messageId) {
       if (this.verbose) {
         console.log('ignore error ' + msg[1]);
       }
     } else {
       this._resetConnection();
-      if(this.verbose) {
+
+      if (this.verbose) {
         console.log('> error: ' + msg);
       }
     }

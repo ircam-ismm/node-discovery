@@ -1,8 +1,9 @@
-import dgram from 'dgram';
-import os from 'os';
-import { EventEmitter } from 'events';
-import { getTime } from './utils';
-import { BROADCAST_PORT } from './config';
+import dgram from 'node:dgram';
+import { EventEmitter } from 'node:events';
+
+import { getTime } from '@ircam/sc-gettime';
+
+import { BROADCAST_PORT } from './constants.js';
 
 function getKey(rinfo) {
   return rinfo.address + ':' + rinfo.port;
@@ -23,7 +24,7 @@ class DiscoveryServer extends EventEmitter {
     broadcastPort = BROADCAST_PORT,
     monitorInterval = 2000, // ms
     disconnectTimeout = 10000, // ms
-    verbose = false
+    verbose = false,
   } = {}) {
     super();
 
@@ -60,6 +61,7 @@ class DiscoveryServer extends EventEmitter {
    */
   stop() {
     clearInterval(this._monitorIntervalId);
+
     this.udp.close();
   }
 
@@ -69,6 +71,7 @@ class DiscoveryServer extends EventEmitter {
    * @param {String} msg - Message to send.
    * @param {Number} port - Port of the client.
    * @param {String} address - Ip address of the client.
+   * @private
    */
   send(msg, port, address) {
     if (this.udp) {
@@ -86,13 +89,12 @@ class DiscoveryServer extends EventEmitter {
 
     this.udp.on('message', (buffer, rinfo) => {
       const msg = buffer.toString().split(' ');
-      const key = getKey(rinfo);
 
       if (this.verbose) {
         console.log('receive: ', msg);
       }
 
-      switch(msg[0]) {
+      switch (msg[0]) {
         case 'DISCOVER_REQ': {
           this._receiveDiscoverReq(msg, rinfo);
           break;
@@ -142,11 +144,13 @@ class DiscoveryServer extends EventEmitter {
       this._sendError(msg, rinfo);
     } else {
       let payload = null;
+
       try {
         payload = JSON.parse(msg[2]);
-      } catch(e) {
+      } catch (e) {
         payload = {};
       }
+
       this._connectClient(key, rinfo, payload);
       this._sendConnectAck(msg, rinfo);
     }
