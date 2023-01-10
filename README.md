@@ -2,69 +2,25 @@
 
 Simple Node.js utility to discover devices on a network
 
-## API
+## Install
 
-<!-- api -->
+```sh
+npm install --save @ircam/node-discovery
+```
 
-### Classes
+## Example Use
 
-<dl>
-<dt><a href="#DiscoveryServer">DiscoveryServer</a></dt>
-<dd><p>Create a server that waits for new connection from DiscoveryClient.</p>
-</dd>
-<dt><a href="#DiscoveryClient">DiscoveryClient</a></dt>
-<dd><p>Create a client that tries to connect to a DiscoveryServer.</p>
-</dd>
-</dl>
+### Server-side
 
-<a name="DiscoveryServer"></a>
+```js
 
-### DiscoveryServer
-Create a server that waits for new connection from DiscoveryClient.
+```
 
-**Kind**: global class  
 
-* [DiscoveryServer](#DiscoveryServer)
-    * [.start()](#DiscoveryServer+start)
-    * [.stop()](#DiscoveryServer+stop)
+```js
 
-<a name="DiscoveryServer+start"></a>
+```
 
-#### discoveryServer.start()
-Start the server.
-
-**Kind**: instance method of [<code>DiscoveryServer</code>](#DiscoveryServer)  
-<a name="DiscoveryServer+stop"></a>
-
-#### discoveryServer.stop()
-Stop the server
-
-**Kind**: instance method of [<code>DiscoveryServer</code>](#DiscoveryServer)  
-<a name="DiscoveryClient"></a>
-
-### DiscoveryClient
-Create a client that tries to connect to a DiscoveryServer.
-
-**Kind**: global class  
-
-* [DiscoveryClient](#DiscoveryClient)
-    * [.start()](#DiscoveryClient+start)
-    * [.stop()](#DiscoveryClient+stop)
-
-<a name="DiscoveryClient+start"></a>
-
-#### discoveryClient.start()
-Start the client.
-
-**Kind**: instance method of [<code>DiscoveryClient</code>](#DiscoveryClient)  
-<a name="DiscoveryClient+stop"></a>
-
-#### discoveryClient.stop()
-Stop the client.
-
-**Kind**: instance method of [<code>DiscoveryClient</code>](#DiscoveryClient)  
-
-<!-- apistop -->
 
 ## License
 

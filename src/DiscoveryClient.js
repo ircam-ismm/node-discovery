@@ -224,7 +224,14 @@ class DiscoveryClient extends EventEmitter {
       clearTimeout(this.retryTimeoutId);
 
       this.state = 'connected';
-      this.emit('connection', rinfo);
+
+      const linfo = {
+        address: msg[2],
+        port: this.port,
+        payload: this.payload,
+      };
+
+      this.emit('connection', rinfo, linfo);
       this._sendKeepaliveReq();
     }
   }

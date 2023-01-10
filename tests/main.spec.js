@@ -78,8 +78,9 @@ describe('@ircam/node-discovery', () => {
     console.log('> start client');
     client.start();
 
-    client.on('connection', rinfo => {
+    client.on('connection', (rinfo, linfo) => {
       console.log(rinfo);
+      console.log(linfo);
       clientReceivedRinfo = true;
     });
 
@@ -103,7 +104,7 @@ describe('@ircam/node-discovery', () => {
     server.stop();
   });
 
-  it.only('server connect after client', async function() {
+  it('server connect after client', async function() {
     this.timeout(20 * 1000);
 
     let counterId;

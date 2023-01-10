@@ -11,15 +11,16 @@ function getKey(rinfo) {
 
 /**
  * Create a server that waits for new connection from DiscoveryClient.
- *
- * @example
- * import { DiscoveryServer } from '@ircam/node-discovery'
- *
- * const server = new DiscoveryServer();
- * server.on('connection', (rinfo, list) => console.log('connection', rinfo, list));
- * server.on('close', list => console.log('close', list));
  */
 class DiscoveryServer extends EventEmitter {
+  /**
+   * @example
+   * import { DiscoveryServer } from '@ircam/node-discovery'
+   *
+   * const server = new DiscoveryServer();
+   * server.on('connection', (rinfo, list) => console.log('connection', rinfo, list));
+   * server.on('close', list => console.log('close', list));
+   */
   constructor({
     broadcastPort = BROADCAST_PORT,
     monitorInterval = 2000, // ms
@@ -158,7 +159,7 @@ class DiscoveryServer extends EventEmitter {
 
   _sendConnectAck(msg, rinfo) {
     const messageId = parseInt(msg[1]);
-    this.send('CONNECT_ACK ' + messageId, rinfo.port, rinfo.address);
+    this.send('CONNECT_ACK ' + messageId + ' ' + rinfo.address, rinfo.port, rinfo.address);
   }
 
 
