@@ -1,6 +1,6 @@
 {
   "name": "@ircam/node-discovery",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Simple utility to discover devices on a network",
   "author": "Benjamin Matuszewski",
   "license": "BSD-3-Clause",
