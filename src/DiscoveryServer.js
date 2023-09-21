@@ -26,11 +26,13 @@ class DiscoveryServer extends EventEmitter {
     monitorInterval = 2000, // ms
     disconnectTimeout = 10000, // ms
     verbose = false,
+    payload = {},
   } = {}) {
     super();
 
     this.broadcastPort = broadcastPort;
     this.verbose = verbose;
+    this.payload = payload;
     this.clients = new Map();
 
     this.monitorInterval = monitorInterval;
@@ -159,7 +161,11 @@ class DiscoveryServer extends EventEmitter {
 
   _sendConnectAck(msg, rinfo) {
     const messageId = parseInt(msg[1]);
-    this.send('CONNECT_ACK ' + messageId + ' ' + rinfo.address, rinfo.port, rinfo.address);
+    this.send(
+      'CONNECT_ACK ' + messageId + ' ' + rinfo.address + ' ' + JSON.stringify(this.payload),
+      rinfo.port,
+      rinfo.address
+    );
   }
 
 

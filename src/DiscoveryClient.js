@@ -231,6 +231,8 @@ class DiscoveryClient extends EventEmitter {
         payload: this.payload,
       };
 
+      rinfo.payload = JSON.parse(msg[3]);
+
       this.emit('connection', rinfo, linfo);
       this._sendKeepaliveReq();
     }
